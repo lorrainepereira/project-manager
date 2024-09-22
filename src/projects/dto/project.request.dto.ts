@@ -1,22 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { TaskDto } from '../../tasks/dto/task.dto';
-import { AuthLoginDto } from '../../auth/dto/auth.dto';
+import { JoinColumn, ManyToOne } from 'typeorm';
+import { User } from '../../users/entity/user';
 
-export class ProjectResponseDto {
-  @ApiProperty()
-  @Expose()
-  id: number;
+export class ProjectRequestDto {
 
   @ApiProperty()
   @Expose()
   name: string;
 
   @ApiProperty()
-  @Expose()
-  user: number;
+  user_id: number;
 
-  @ApiProperty()
-  @Expose()
-  tasks: TaskDto[];
 }

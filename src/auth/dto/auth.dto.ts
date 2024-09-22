@@ -4,7 +4,7 @@ import { Expose } from 'class-transformer';
 export class AuthLoginDto {
   @ApiProperty()
   @Expose()
-  id: string;
+  id: number;
 
   @ApiProperty()
   email: string;

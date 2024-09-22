@@ -3,8 +3,12 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
 import { Project } from './entity/project';
 import { ProjectResponseDto } from './dto/project.response.dto';
-import { User } from '../users/entity/user';
 import { TasksService } from '../tasks/tasks.service';
+import { AuthLoginDto } from '../auth/dto/auth.dto';
+import { ProjectRequestDto } from './dto/project.request.dto';
+import { UsersService } from '../users/users.service';
+import { Task } from '../tasks/entity/task';
+import { plainToInstance } from 'class-transformer';
 
 @Injectable()
 export class ProjectsService {
@@ -12,21 +16,24 @@ export class ProjectsService {
     @InjectRepository(Project)
     private projectsRepository: Repository<Project>,
     private readonly tasksService: TasksService,
+    private readonly usersService: UsersService
   ) {}
 
-  async findAllByUser(user: User): Promise<ProjectResponseDto[]> {
-    let projects = this.projectsRepository.find({
-      relations: ['user'],
+  async findAllByUser(user: AuthLoginDto): Promise<ProjectResponseDto[]> {
+    let projects = await this.projectsRepository.find({
+      relations: ['user.projects'],
       loadRelationIds: true,
       where: {
-        user: user,
+        user: { id: user.id },
       },
     });
-    return this.convertEntitiesToDtos(await projects);
+    return this.convertEntitiesToDtos(projects);
   }
 
-  async createProject(project: Project): Promise<Project> {
-    return this.projectsRepository.create(project);
+  async create(user: AuthLoginDto, project: ProjectRequestDto): Promise<ProjectResponseDto> {
+    project.user_id = user.id;
+    let projectSaved = await this.projectsRepository.save(project);
+    return plainToInstance(ProjectResponseDto, projectSaved, { excludeExtraneousValues: true });
   }
 
   async updateProject(project: Project): Promise<Project> {
@@ -43,10 +50,10 @@ export class ProjectsService {
 
   public convertEntityToDto(entity: Project): ProjectResponseDto {
     return {
-      tasks: this.tasksService.convertEntitiesToDtos(entity.tasks),
+      tasks: entity.tasks != undefined ? this.tasksService.convertEntitiesToDtos(entity.tasks) : null,
       id: entity.id,
       name: entity.name,
-      user_id: entity.user.id,
+      user: entity.user.id,
     };
   }
 

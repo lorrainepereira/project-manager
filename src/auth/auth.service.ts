@@ -17,7 +17,7 @@ export class AuthService {
     //   throw new WrongAuthError(AUTH_USER_ERRORS.WrongAuth);
     // }
     // @ts-ignore
-    const payload = { id: user._id, email: user.email };
+    const payload = { id: user.id, email: user.email };
     const token = this.jwtService.sign(payload);
     // @ts-ignore
     return { ...user, token };
