@@ -2,17 +2,13 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { TaskStatus } from '../enum/task.status';
 
-export class TaskDto {
-  @ApiProperty()
-  @Expose()
-  id: number;
+export class TaskRequestDto {
 
   @ApiProperty()
   @Expose()
   title: string;
 
-  @ApiProperty({ enum: TaskStatus })
-  @Expose()
+  @ApiProperty({ enum: TaskStatus, default: TaskStatus.IN_PROGRSES })
   status: TaskStatus;
 
   @ApiProperty()

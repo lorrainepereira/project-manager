@@ -1,5 +1,4 @@
 import { UsersService } from './users.service';
-import { UsersController } from './users.controller';
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entity/user';
@@ -9,7 +8,6 @@ import { User } from './entity/user';
       User
     ])
   ],
-  controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService],
 })

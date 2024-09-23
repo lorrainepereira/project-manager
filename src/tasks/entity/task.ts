@@ -11,7 +11,7 @@ export class Task {
   title: string;
 
   @Column({ default: TaskStatus.IN_PROGRSES, type: 'varchar', length: 20 })
-  status: string;
+  status: TaskStatus;
 
   @Column({ type: 'varchar', length: 20 })
   description: string;

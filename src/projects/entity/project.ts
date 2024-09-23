@@ -18,10 +18,9 @@ export class Project {
   name: string;
 
   @ManyToOne(() => User, (user) => user.projects)
-  @JoinColumn({ name: 'user_id' })
+  @JoinColumn({ name: 'user_id'})
   user: User;
 
   @OneToMany(() => Task, (task) => task.project)
-  @JoinColumn({ name: 'task_id' })
   tasks: Task[];
 }

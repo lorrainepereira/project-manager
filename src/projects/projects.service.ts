@@ -1,14 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
 import { Project } from './entity/project';
 import { ProjectResponseDto } from './dto/project.response.dto';
 import { TasksService } from '../tasks/tasks.service';
 import { AuthLoginDto } from '../auth/dto/auth.dto';
-import { ProjectRequestDto } from './dto/project.request.dto';
 import { UsersService } from '../users/users.service';
-import { Task } from '../tasks/entity/task';
 import { plainToInstance } from 'class-transformer';
+import { TaskDto } from '../tasks/dto/task.dto';
 
 @Injectable()
 export class ProjectsService {
@@ -16,11 +15,11 @@ export class ProjectsService {
     @InjectRepository(Project)
     private projectsRepository: Repository<Project>,
     private readonly tasksService: TasksService,
-    private readonly usersService: UsersService
+    private readonly usersService: UsersService,
   ) {}
 
   async findAllByUser(user: AuthLoginDto): Promise<ProjectResponseDto[]> {
-    let projects = await this.projectsRepository.find({
+    const projects = await this.projectsRepository.find({
       relations: ['user.projects'],
       loadRelationIds: true,
       where: {
@@ -30,40 +29,49 @@ export class ProjectsService {
     return this.convertEntitiesToDtos(projects);
   }
 
-  async create(user: AuthLoginDto, project: ProjectRequestDto): Promise<ProjectResponseDto> {
-    project.user_id = user.id;
-    let projectSaved = await this.projectsRepository.save(project);
-    return plainToInstance(ProjectResponseDto, projectSaved, { excludeExtraneousValues: true });
+  async create(user: AuthLoginDto, name: string): Promise<ProjectResponseDto> {
+    const userEntity = plainToInstance(
+      AuthLoginDto,
+      await this.usersService.findById(user.id),
+    );
+
+    const projectForToSave = {
+      user: userEntity,
+      name: name,
+    };
+    const projectSaved = await this.projectsRepository.save(projectForToSave);
+    return plainToInstance(ProjectResponseDto, projectSaved, {
+      excludeExtraneousValues: true,
+    });
   }
 
-  async updateProject(project: Project): Promise<Project> {
-    return this.projectsRepository.save(project);
+  async update(id: number, name: string): Promise<ProjectResponseDto> {
+    const project = await this.projectsRepository.findOneBy({ id: id });
+
+    if (!project) {
+      throw new BadRequestException('Project not found.');
+    }
+
+    project.name = name;
+    const projectUpdated = await this.projectsRepository.save(project);
+    return plainToInstance(ProjectResponseDto, projectUpdated, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async findById(id: number): Promise<Project> {
-    return this.projectsRepository.findOneBy({ id: id });
+    return await this.projectsRepository.findOneBy({ id: id });
   }
 
   async deleteById(id: number): Promise<DeleteResult> {
-    return this.projectsRepository.delete(id);
-  }
-
-  public convertEntityToDto(entity: Project): ProjectResponseDto {
-    return {
-      tasks: entity.tasks != undefined ? this.tasksService.convertEntitiesToDtos(entity.tasks) : null,
-      id: entity.id,
-      name: entity.name,
-      user: entity.user.id,
-    };
+    return await this.projectsRepository.delete(id);
   }
 
   public convertEntitiesToDtos(entities: Project[]): ProjectResponseDto[] {
-    let dtos: ProjectResponseDto[] = [];
+    return entities.map((entry) => plainToInstance(ProjectResponseDto, entry));
+  }
 
-    entities.forEach(function (entry) {
-      dtos.push(this.convertEntityToDto(entry));
-    });
-
-    return dtos;
+  async findAllTasksByProject(idProject: number): Promise<TaskDto[]> {
+    return await this.tasksService.findAllByProject(idProject);
   }
 }

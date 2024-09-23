@@ -1,8 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { Task } from './entity/task';
 import { TaskDto } from './dto/task.dto';
+import { plainToInstance } from 'class-transformer';
+import { TaskRequestDto } from './dto/task.request.dto';
+import { TaskStatus } from './enum/task.status';
+import { TaskUpdateRequestDto } from './dto/task.update.request.dto';
 
 @Injectable()
 export class TasksService {
@@ -11,24 +15,64 @@ export class TasksService {
     private tasksRepository: Repository<Task>,
   ) {}
 
-  public convertEntityToDto(entity: Task): TaskDto {
-    return {
-      id: entity.id,
-      title: entity.title,
-      status: entity.status,
-      description: entity.description,
-      due_date: entity.due_date,
-      project: entity.project.id,
-    };
+  async create(dto: TaskRequestDto): Promise<TaskDto> {
+    const taskForToSave: Task = plainToInstance(Task, dto);
+    const taskSaved = await this.tasksRepository.save(taskForToSave);
+
+    return plainToInstance(TaskDto, taskSaved, {
+      excludeExtraneousValues: true,
+    });
   }
 
-  public convertEntitiesToDtos(entities: Task[]): TaskDto[] {
-    let dtos: TaskDto[] = [];
+  async deleteById(id: number): Promise<DeleteResult> {
+    return await this.tasksRepository.delete(id);
+  }
 
-    entities.forEach(function(entry){
-      dtos.push(this.convertEntityToDto(entry))
+  async findAllByProject(idProject: number): Promise<TaskDto[]> {
+    const tasks = await this.tasksRepository.find({
+      relations: ['project.tasks'],
+      loadRelationIds: true,
+      where: {
+        project: { id: idProject },
+      },
     });
+    return plainToInstance(TaskDto, tasks, {
+      excludeExtraneousValues: true,
+    });
+  }
 
-    return dtos;
+  async update(id: number, dto: TaskRequestDto): Promise<TaskDto> {
+    const task = await this.tasksRepository.findOneBy({ id: id });
+
+    if (!task) {
+      throw new BadRequestException('Task not found.');
+    }
+
+    task.description = dto.description;
+    task.status = dto.status;
+    task.title = dto.title;
+    task.due_date = dto.due_date;
+
+    const taskUpdated = await this.tasksRepository.save(task);
+
+    return plainToInstance(TaskDto, taskUpdated, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  async updateStatus(dto: TaskUpdateRequestDto, status: TaskStatus): Promise<TaskDto> {
+    const task = await this.tasksRepository.findOneBy({ id: dto.idTask });
+
+    if (!task) {
+      throw new BadRequestException('Task not found.');
+    }
+
+    task.status = status;
+
+    const taskUpdated = await this.tasksRepository.save(task);
+
+    return plainToInstance(TaskDto, taskUpdated, {
+      excludeExtraneousValues: true,
+    });
   }
 }

@@ -14,7 +14,7 @@ export class ProjectResponseDto {
 
   @ApiProperty()
   @Expose()
-  user: number;
+  user: AuthLoginDto;
 
   @ApiProperty()
   @Expose()

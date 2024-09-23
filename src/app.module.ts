@@ -23,6 +23,7 @@ import { TasksModule } from './tasks/tasks.module';
       database: process.env.DB_DATABASE,
       entities: [User, Project, Task],
       synchronize: false,
+      autoLoadEntities: true
     }),
     AuthModule,
     UsersModule,
