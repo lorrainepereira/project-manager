@@ -52,7 +52,7 @@ export class TasksController {
       if (error instanceof QueryFailedError) {
         throw new BadRequestException(error.message);
       }
-      throw new InternalServerErrorException('Server error');
+      throw new InternalServerErrorException('Erro do servidor.');
     }
   }
 
@@ -75,7 +75,7 @@ export class TasksController {
         throw new BadRequestException(error.message);
       } else {
       }
-      throw new InternalServerErrorException('Server error');
+      throw new InternalServerErrorException('Erro do servidor.');
     }
   }
 
@@ -102,7 +102,7 @@ export class TasksController {
         throw new BadRequestException(error.message);
       } else {
       }
-      throw new InternalServerErrorException('Server error');
+      throw new InternalServerErrorException('Erro do servidor.');
     }
   }
 
@@ -131,7 +131,7 @@ export class TasksController {
         throw new BadRequestException(error.message);
       } else {
       }
-      throw new InternalServerErrorException('Server error');
+      throw new InternalServerErrorException('Erro do servidor.');
     }
   }
 
@@ -152,7 +152,7 @@ export class TasksController {
       if (error instanceof QueryFailedError) {
         throw new BadRequestException(error.message);
       }
-      throw new InternalServerErrorException('Server error');
+      throw new InternalServerErrorException('Erro do servidor.');
     }
   }
 }

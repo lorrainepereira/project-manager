@@ -35,7 +35,7 @@ export class AuthController {
         throw new BadRequestException(error.message);
       }
 
-      throw new InternalServerErrorException('Server error');
+      throw new InternalServerErrorException('Erro do servidor.');
     }
   }
 

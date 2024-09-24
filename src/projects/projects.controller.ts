@@ -52,7 +52,7 @@ export class ProjectsController {
       if (error instanceof QueryFailedError) {
         throw new BadRequestException(error.message);
       }
-      throw new InternalServerErrorException('Server error');
+      throw new InternalServerErrorException('Erro do servidor.');
     }
   }
 
@@ -75,7 +75,7 @@ export class ProjectsController {
       if (error instanceof QueryFailedError) {
         throw new BadRequestException(error.message);
       }
-      throw new InternalServerErrorException('Server error');
+      throw new InternalServerErrorException('Erro do servidor.');
     }
   }
 
@@ -100,7 +100,7 @@ export class ProjectsController {
         error instanceof BadRequestException) {
         throw new BadRequestException(error.message);
       }
-      throw new InternalServerErrorException('Server error');
+      throw new InternalServerErrorException('Erro do servidor.');
     }
   }
 
@@ -113,14 +113,14 @@ export class ProjectsController {
   @Delete(':id')
   async delete(@Param('id') idProject: number): Promise<HttpStatus> {
     try {
-      let responseDelete = await this.projectsService.deleteById(idProject);
+      const responseDelete = await this.projectsService.deleteById(idProject);
       return responseDelete.affected ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
     } catch (error) {
       if (error instanceof QueryFailedError ||
           error instanceof BadRequestException) {
         throw new BadRequestException(error.message);
       }
-      throw new InternalServerErrorException('Server error');
+      throw new InternalServerErrorException('Erro do servidor.');
     }
   }
 
@@ -139,7 +139,7 @@ export class ProjectsController {
       if (error instanceof QueryFailedError) {
         throw new BadRequestException(error.message);
       }
-      throw new InternalServerErrorException('Server error');
+      throw new InternalServerErrorException('Erro do servidor.');
     }
   }
 }

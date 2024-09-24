@@ -49,7 +49,7 @@ export class ProjectsService {
     const project = await this.projectsRepository.findOneBy({ id: id });
 
     if (!project) {
-      throw new BadRequestException('Project not found.');
+      throw new BadRequestException('Projeto não encontrado.');
     }
 
     project.name = name;
@@ -64,6 +64,9 @@ export class ProjectsService {
   }
 
   async deleteById(id: number): Promise<DeleteResult> {
+    const tasks = await this.tasksService.findAllByProject(id);
+    if (tasks && tasks.length > 0)
+      throw new BadRequestException("O projeto não pode ser excluído porque possui tarefas anexadas.");
     return await this.projectsRepository.delete(id);
   }
 

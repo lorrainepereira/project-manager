@@ -47,7 +47,7 @@ export class TasksService {
     const task = await this.tasksRepository.findOneBy({ id: id });
 
     if (!task) {
-      throw new BadRequestException('Task not found.');
+      throw new BadRequestException('Tarefa não encontrada.');
     }
 
     task.description = dto.description;
@@ -69,7 +69,7 @@ export class TasksService {
     const task = await this.tasksRepository.findOneBy({ id: dto.idTask });
 
     if (!task) {
-      throw new BadRequestException('Task not found.');
+      throw new BadRequestException('Tarefa não encontrada.');
     }
 
     task.status = status;

@@ -13,9 +13,7 @@ export class AuthService {
     if (!user) {
       throw new WrongAuthError(AUTH_USER_ERRORS.WrongAuth);
     }
-    // if (!compareHashes(loginData.password, user.password)) {
-    //   throw new WrongAuthError(AUTH_USER_ERRORS.WrongAuth);
-    // }
+
     // @ts-ignore
     const payload = { id: user.id, email: user.email };
     const token = this.jwtService.sign(payload);
