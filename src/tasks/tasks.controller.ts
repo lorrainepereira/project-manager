@@ -3,6 +3,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   InternalServerErrorException,
@@ -12,7 +13,6 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -26,7 +26,8 @@ import { QueryFailedError } from 'typeorm';
 import { TaskRequestDto } from './dto/task.request.dto';
 import { TaskDto } from './dto/task.dto';
 import { TaskStatus } from './enum/task.status';
-import { TaskUpdateRequestDto } from './dto/task.update.request.dto';
+import { TaskStatusDto } from './dto/task.status.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt.auth.guard';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Task')
@@ -105,7 +106,9 @@ export class TasksController {
     }
   }
 
-  @ApiOperation({ summary: 'Rota para atualizar o status de uma tarefa.' })
+  @ApiOperation({
+    summary: 'Rota para atualizar o status de todas as tarefas.',
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     type: TaskDto,
@@ -113,14 +116,13 @@ export class TasksController {
   })
   @HttpCode(HttpStatus.OK)
   @Patch(':status')
-  @ApiBody({ type: TaskUpdateRequestDto })
   @ApiParam({ name: 'status', enum: TaskStatus })
-  async updateStatus(
+  async updateAllStatus(
     @Param('status') status: TaskStatus,
-    @Body() dto: any,
-  ): Promise<TaskDto> {
+  ): Promise<HttpStatus> {
     try {
-      return await this.tasksService.updateStatus(dto, status);
+      const response = this.tasksService.updateAllStatus(status);
+      return response ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
     } catch (error) {
       if (
         error instanceof QueryFailedError ||
@@ -128,6 +130,27 @@ export class TasksController {
       ) {
         throw new BadRequestException(error.message);
       } else {
+      }
+      throw new InternalServerErrorException('Server error');
+    }
+  }
+
+  @ApiOperation({
+    summary: 'Rota para listar todos os tipos de status da task.',
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    type: TaskStatusDto,
+    description: 'Success',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Get('all-status')
+  async findAllStatus(): Promise<TaskStatusDto[]> {
+    try {
+      return this.tasksService.getAllStatus();
+    } catch (error) {
+      if (error instanceof QueryFailedError) {
+        throw new BadRequestException(error.message);
       }
       throw new InternalServerErrorException('Server error');
     }

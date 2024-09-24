@@ -10,12 +10,10 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async findByEmail(email: string): Promise<User> {
-    return this.usersRepository.findOne({
-      where: {
-        email: email,
-      }
-    });
+  async findByEmail(email: string): Promise<User | undefined> {
+    return this.usersRepository.createQueryBuilder("user")
+      .where("user.email = :email", { email: email })
+      .getOne();
   }
 
   async findById(id: number): Promise<User> {

@@ -8,7 +8,7 @@ export class TaskRequestDto {
   @Expose()
   title: string;
 
-  @ApiProperty({ enum: TaskStatus, default: TaskStatus.IN_PROGRSES })
+  @ApiProperty({ enum: TaskStatus, default: TaskStatus.IN_PROGRESS })
   status: TaskStatus;
 
   @ApiProperty()

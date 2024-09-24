@@ -35,9 +35,7 @@ import { TaskDto } from '../tasks/dto/task.dto';
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
-  @ApiOperation({
-    summary: 'Rota para listar os projetos do usuário autenticado.',
-  })
+  @ApiOperation({ summary: 'Rota para listar os projetos do usuário autenticado.' })
   @ApiResponse({
     status: HttpStatus.OK,
     type: ProjectResponseDto,
@@ -99,10 +97,8 @@ export class ProjectsController {
     } catch (error) {
       if (
         error instanceof QueryFailedError ||
-        error instanceof BadRequestException
-      ) {
+        error instanceof BadRequestException) {
         throw new BadRequestException(error.message);
-      } else {
       }
       throw new InternalServerErrorException('Server error');
     }
@@ -120,20 +116,15 @@ export class ProjectsController {
       let responseDelete = await this.projectsService.deleteById(idProject);
       return responseDelete.affected ? HttpStatus.OK : HttpStatus.BAD_REQUEST;
     } catch (error) {
-      if (
-        error instanceof QueryFailedError ||
-        error instanceof BadRequestException
-      ) {
+      if (error instanceof QueryFailedError ||
+          error instanceof BadRequestException) {
         throw new BadRequestException(error.message);
-      } else {
       }
       throw new InternalServerErrorException('Server error');
     }
   }
 
-  @ApiOperation({
-    summary: 'Rota para listar as tarefas de um projeto específico.',
-  })
+  @ApiOperation({ summary: 'Rota para listar as tarefas de um projeto específico.' })
   @ApiResponse({
     status: HttpStatus.OK,
     type: TaskDto,

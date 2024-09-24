@@ -7,6 +7,8 @@ import { plainToInstance } from 'class-transformer';
 import { TaskRequestDto } from './dto/task.request.dto';
 import { TaskStatus } from './enum/task.status';
 import { TaskUpdateRequestDto } from './dto/task.update.request.dto';
+import { TaskStatusDto } from './dto/task.status.dto';
+import { UpdateResult } from 'typeorm/query-builder/result/UpdateResult';
 
 @Injectable()
 export class TasksService {
@@ -60,7 +62,10 @@ export class TasksService {
     });
   }
 
-  async updateStatus(dto: TaskUpdateRequestDto, status: TaskStatus): Promise<TaskDto> {
+  async updateStatus(
+    dto: TaskUpdateRequestDto,
+    status: TaskStatus,
+  ): Promise<TaskDto> {
     const task = await this.tasksRepository.findOneBy({ id: dto.idTask });
 
     if (!task) {
@@ -74,5 +79,26 @@ export class TasksService {
     return plainToInstance(TaskDto, taskUpdated, {
       excludeExtraneousValues: true,
     });
+  }
+
+  async updateAllStatus(status: TaskStatus): Promise<UpdateResult> {
+    return await this.tasksRepository
+      .createQueryBuilder()
+      .update(Task)
+      .set({ status: TaskStatus[status] })
+      .execute();
+  }
+
+  public getAllStatus(): TaskStatusDto[] {
+    let status: TaskStatusDto[] = [];
+
+    for (let enumValue in TaskStatus) {
+      const dto: TaskStatusDto = new TaskStatusDto();
+      dto.name = enumValue;
+      dto.description = TaskStatus[enumValue];
+      status.push(dto);
+    }
+
+    return status;
   }
 }
